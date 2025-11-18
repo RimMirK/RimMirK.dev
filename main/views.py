@@ -47,7 +47,7 @@ def contacts(request):
 
 
 def donate(request):
-    return render(request, "donate.html")
+    return render(request, "donate.html", {'content': models.Donate.objects.last().content})
 
 
 def projects_list(request):
@@ -116,4 +116,5 @@ def handler500(request):
     return render(request, "error.html", {
         "code": 500,
         "message": "Internal Server Error"
+
     }, status=500)
