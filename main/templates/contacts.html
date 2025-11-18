@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Contacts — RimMirK{% endblock %}
+{% block content %}
+
+{{ content|safe }}
+
+
+<form id="contact-form" method="post">
+    <h2>Or leave your message here:</h2>
+    
+    {% if sent %}
+    <p class="form-sent">✅ Your message has been sent!</p>
+    {% endif %}
+    
+    {% csrf_token %}
+
+    <input type="text" name="name" placeholder="Your name (nickname, username, pseudonym)" title="You can use your nickname, pseudonym, or username. Not required to use real name.">
+    
+    <input type="text" name="contact" placeholder="Your contact (email, telegram, etc.)" title="Always leave a contact so I can reply.">
+    
+    <textarea name="message" placeholder="Your message here...
+
+Be polite and do not spam.
+Attach files via Temp.sh, code via GitHub Gist,
+full projects via GitHub repo."></textarea>
+    
+    <button type="submit">Send</button>
+</form>
+
+{% endblock %}

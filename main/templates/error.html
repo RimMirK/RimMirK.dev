@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}{{ code }}: {{ message }} — RimMirK{% endblock %}
+{% block content %}
+
+<div id="error">
+    <h1 id="error-code">{{ code }}</h1>
+    <p id="error-message">{{ message }}</p>
+    <p id="error-help">
+        If you believe this error is caused by the website,<br>
+        please report it at <a href="mailto:me@RimMirK.dev">me@RimMirK.dev</a><br>
+        or contact me on Telegram at <a href='https://t.me/RimMirK'>@RimMirK</a>.
+    </p>
+    <p id="error-help"><a href="/" class="btn">Go home</a></p>
+</div>
+
+{% endblock %}

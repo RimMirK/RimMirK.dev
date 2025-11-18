@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}{{ project.title }} — RimMirK's Project{% endblock %}
+{% block content %}
+<article class="project-detail">
+    <h1>{{ project.title }}</h1>
+    <div class="project-body">{{ project.description|safe }}</div>
+    <div class="project-card">
+        <div class="links">
+            <h3 class="links-word">Links</h3>
+            {% for link in project.links.all %}
+                <a
+                    href="{{ link.url }}"
+                    target="{{ link.target }}"
+                    {% if link.style == "btn" %}
+                        class='btn'
+                    {% elif link.style == "btn-ghost" %}
+                        class='btn ghost'
+                    {% elif link.style == "link" %}
+                        class='btn link'
+                    {% endif %}
+                    {{ link.extra_attrs|safe }}
+                >{{ link.text|safe }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</article>
+{% endblock %}

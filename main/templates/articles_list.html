@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Articles — RimMirK{% endblock %}
+{% block content %}
+<h1>Articles</h1>
+    <div class="articles-list">
+        {% for article in articles %}
+            <article class='article-card'>
+                <div class='article-top'>
+                    <span class='article-author'>{{ article.author }}</span>
+                    — <time datetime="{{ article.created_at|date:'c' }}">{{ article.created_at|date:'F j, Y' }}</time>
+                    {% if article.updated_at != article.created_at %}<wbr>
+                        (edited: <time datetime="{{ article.updated_at|date:'c' }}">{{ article.updated_at|date:'F j, Y' }}</time>)
+                    {% endif %}
+                </div>
+                <h3><a href='{{ article.get_absolute_url }}'>{{ article.title }}</a></h3>
+                <div class='article-description'>
+                    {{ article.description|safe }}
+                </div>
+                <div class='article-bottom'>
+                    <a href='{{ article.get_absolute_url }}' class='btn read-article'>{{ article.read_btn }}</a>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</ul>
+{% endblock %}

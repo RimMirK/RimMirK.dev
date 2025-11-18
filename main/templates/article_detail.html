@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load number_format %}
+{% block title %}{{ article.title }} — RimMirK's Article{% endblock %}
+{% block content %}
+<article class='article-full'>
+    <div class='article-top'>
+        <span class='article-author'>{{ article.author }}</span>
+        — <time datetime="{{ article.created_at|date:'c' }}">{{ article.created_at|date:'F j, Y' }}</time>
+        {% if article.updated_at != article.created_at %}<wbr>
+            (edited: <time datetime="{{ article.updated_at|date:'c' }}">{{ article.updated_at|date:'F j, Y' }}</time>)
+        {% endif %}
+    </div>
+    {% if not article.hide_title %}
+        <h1><a href='/articles/{{ article.slug }}/'>{{ article.title }}</a></h1>
+    {% endif %}
+        <div class='article-description'>
+        {{ article.content|safe }}
+    </div>
+    <div class='article-views' title="* {{ article.views }} requests to this page and {{ article.unique_visitors }} unique IPs">
+        {{ article.views|humanize_number }} views | {{ article.unique_visitors|humanize_number }} unique visitors
+    </div>
+</article>
+{% endblock %}

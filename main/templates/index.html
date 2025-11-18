@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Home — RimMirK{% endblock %}
+{% block content %}
+{% load static %}
+
+<section class="hero">
+    <h1 class="name"><bolder>RimMirK</bolder></h1>
+    <p class="subtitle">{{ index.subtitle }}</p>
+    <div class="content">
+        {{ index.text|safe }}
+    </div>    
+    <div class="cta-row">
+        <a class="btn" href="/projects/">Projects</a>
+        <a class="btn ghost" href="/articles/">Articles</a>
+    </div>
+</section>
+
+<section class="cards-preview">
+    <h2>Projects</h2>
+    <div class="cards-grid">
+        {% for project in projects %}
+            <article class="project-card">
+                <div class="project-card-top" >
+                    <img src="{{ project.icon.url }}" alt="Project logo" class="logo">
+                    <h3 class="title"><a href="/projects/{{ project.slug }}/">{{ project.title }}</a></h3>
+                    <a class="btn learn-more main"  href="/projects/{{ project.slug }}/">Learn&nbsp;more</a>
+                </div>
+                <p class="desc content">{{ project.short_description|safe }}</p>
+                <div class="learn-more-container">
+                </div>
+                <div class="links">
+                    <a class="btn learn-more links" href="/projects/{{ project.slug }}/">Learn&nbsp;more</a>
+                    {% for link in project.links.all %}
+                        <a
+                            href="{{ link.url }}"
+                            target="{{ link.target }}"
+                            {% if link.style == "btn" %}
+                                class='btn'
+                            {% elif link.style == "btn-ghost" %}
+                                class='btn ghost'
+                            {% elif link.style == "link" %}
+                                class='btn link'
+                            {% endif %}
+                            {{ link.extra_attrs|safe }}
+                        >{{ link.text|safe }}</a>
+                    {% endfor %}
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="articles-preview">
+    <h2>Latest articles</h2>
+    <div class="articles-list">
+        {% for article in articles %}
+            <article class='article-card'>
+                <div class='article-top'>
+                    <span class='article-author'>{{ article.author }}</span>
+                    — <time datetime="{{ article.created_at|date:'c' }}">{{ article.created_at|date:'F j, Y' }}</time>
+                    {% if article.updated_at != article.created_at %}<wbr>
+                        (edited: <time datetime="{{ article.updated_at|date:'c' }}">{{ article.updated_at|date:'F j, Y' }}</time>)
+                    {% endif %}
+                </div>
+                <h3><a href='{{ article.get_absolute_url }}'>{{ article.title }}</a></h3>
+                <div class='article-description'>
+                    {{ article.description|safe }}
+                </div>
+                <div class='article-bottom'>
+                    <a href="{{ article.get_absolute_url }}" class='btn read-article'>{{ article.read_btn }}</a>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
