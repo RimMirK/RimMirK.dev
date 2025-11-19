@@ -29,10 +29,20 @@ jobs:
 
           
             
-            # Создать бэкап текущего состояния сайта (только файлы)
-            BACKUP_DIR="backup_$(date +'%Y%m%d_%H%M%S')"
-            mkdir -p "$PROJECT_DIR/$BACKUP_DIR"
-            rsync -a --exclude 'backup_*' "$PROJECT_DIR" "$PROJECT_DIR/$BACKUP_DIR/"
+            # Проверка существования папки
+            if [ ! -d "$PROJECT_DIR" ]; then
+                echo "Ошибка: $PROJECT_DIR не существует"
+                exit 1
+            fi
+            
+            # Создать папку бэкапа
+            BACKUP_DIR="$PROJECT_DIR/backup_$(date +'%Y%m%d_%H%M%S')"
+            mkdir -p "$BACKUP_DIR"
+            
+            # Копирование содержимого проекта, исключая старые бэкапы
+            rsync -a --exclude 'backup_*' "$PROJECT_DIR/" "$BACKUP_DIR/"
+            
+            echo "Бэкап завершён: $BACKUP_DIR"
 
             pwd
             ls
