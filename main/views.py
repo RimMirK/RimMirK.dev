@@ -34,6 +34,7 @@ def contacts(request):
             send_mail(
                 subject="Новое сообщение с контактной формы",
                 message=full_message,
+                from_email=None,
                 recipient_list=[os.environ['MY_EMAIL']], 
             )
             
@@ -118,3 +119,4 @@ def handler500(request):
         "message": "Internal Server Error"
 
     }, status=500)
+
