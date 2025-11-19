@@ -10,7 +10,7 @@ import os
 def index(request):
     return render(request, "index.html", {
         'index': models.Index.objects.last(),
-        'projects': models.Project.objects.filter(hidden=False, pinned=True),
+        'projects': models.Project.objects.filter(hidden=False, pinned=True).order_by('order'),
         'articles': models.Article.objects.filter(hidden=False).order_by('-created_at')[:5]
     })
 
@@ -52,7 +52,7 @@ def donate(request):
 
 
 def projects_list(request):
-    return render(request, "projects_list.html", {"projects": models.Project.objects.filter(hidden=False).order_by('pinned')})
+    return render(request, "projects_list.html", {"projects": models.Project.objects.filter(hidden=False).order_by('order')})
 
 
 def project_detail(request, project_slug):
@@ -119,4 +119,5 @@ def handler500(request):
         "message": "Internal Server Error"
 
     }, status=500)
+
 
