@@ -32,6 +32,6 @@ jobs:
             python manage.py migrate --noinput &&
             python manage.py makemigrations main --noinput &&
             python manage.py migrate main --noinput &&
-            python collectstatic --noinput &&
+            python manage.py collectstatic --noinput &&
             touch passenger_wsgi.py
           "
