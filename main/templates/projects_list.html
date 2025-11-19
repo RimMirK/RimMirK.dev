@@ -7,13 +7,14 @@
         <article class="project-card">
             <div class="project-card-top">
                 <img src="{{ project.icon.url }}" alt="Project logo" class="logo">
-                <h3 class="title"><a href="/projects/{{ project.slug }}/">{{ project.title }}</a></h3>
-                <a class="btn" href="/projects/{{ project.slug }}/" class="learn-more">Learn&nbsp;more</a>
+                <h3 class="title"><a href="{{ project.get_absolute_url }}">{{ project.title }}</a></h3>
+                <a class="btn" href="{{ project.get_absolute_url }}" class="learn-more">Learn&nbsp;more</a>
             </div>
             <p class="desc content">{{ project.short_description|safe }}</p>
             <div class="learn-more-container">
             </div>
             <div class="links">
+                    <a class="btn learn-more links" href="{{ project.get_absolute_url }}">Learn&nbsp;more</a>
                 {% for link in project.links.all %}
                     <a
                         href="{{ link.url }}"
