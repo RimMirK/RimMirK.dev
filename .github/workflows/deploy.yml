@@ -16,16 +16,52 @@ jobs:
           chmod 600 key
 
       - name: Deploy to server
-        env: 
+        env:
           HOST: ${{ secrets.CPANEL_HOST }}
           USER: ${{ secrets.CPANEL_USER }}
           PROJECT_DIR: ${{ secrets.PROJECT_DIR }}
           VENV_ACTIVATE: ${{ secrets.VENV_ACTIVATE }}
+          BACKUP_DIR: ${{ secrets.BACKUP_DIR }}
         run: |
           ssh -i key -o StrictHostKeyChecking=no $USER@$HOST "
-            cd \"$PROJECT_DIR\" &&
-            git pull &&
-            $VENV_ACTIVATE &&
-            pip install -r requirements.txt &&
+            set -e
+
+            # Бэкап проекта и базы
+            TIMESTAMP=\$(date +'%Y%m%d%H%M%S')
+            mkdir -p \"$BACKUP_DIR\"
+            tar czf \"$BACKUP_DIR/project_\$TIMESTAMP.tar.gz\" -C \"$PROJECT_DIR\" .
+            python3 - <<'EOS'
+import subprocess, os
+DB_BACKUP = os.path.join('$BACKUP_DIR', f'db_{TIMESTAMP}.sql')
+subprocess.run(['pg_dump', '-U', 'your_db_user', '-h', 'localhost', 'your_db_name', '-f', DB_BACKUP], check=True)
+EOS
+
+            # Деплой
+            cd \"$PROJECT_DIR\"
+            git pull
+            $VENV_ACTIVATE
+            pip install -r requirements.txt
+            python manage.py migrate --noinput
+            python manage.py collectstatic --noinput
             touch passenger_wsgi.py
+
+            # Проверка первых 20 страниц sitemap
+            PAGES=\$(grep -oP '(?<=<loc>).*?(?=</loc>)' sitemap.xml | head -n20)
+            ERROR=0
+            for url in \$PAGES; do
+              HTTP_CODE=\$(curl -s -o /dev/null -w '%{http_code}' \$url)
+              if [ \"\$HTTP_CODE\" = \"404\" ]; then
+                echo \"404 on \$url\" >> \$BACKUP_DIR/deploy_404.log
+              elif [ \"\$HTTP_CODE\" = \"500\" ]; then
+                echo \"500 on \$url, rolling back\"
+                ERROR=1
+              fi
+            done
+
+            if [ \$ERROR -eq 1 ]; then
+              echo 'Rolling back project...'
+              tar xzf \"$BACKUP_DIR/project_\$TIMESTAMP.tar.gz\" -C \"$PROJECT_DIR\" --strip-components=0
+              echo 'Rollback done'
+              exit 1
+            fi
           "
