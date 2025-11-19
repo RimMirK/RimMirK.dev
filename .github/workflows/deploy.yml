@@ -21,82 +21,17 @@ jobs:
           USER: ${{ secrets.CPANEL_USER }}
           PROJECT_DIR: ${{ secrets.PROJECT_DIR }}
           VENV_ACTIVATE: ${{ secrets.VENV_ACTIVATE }}
+
         run: |
-          ssh -i key -o StrictHostKeyChecking=no $USER@$HOST bash <<'EOF'
-            set -e
-
-
-            
-            pwd
-            ls
-
-            
-            # Проверка существования папки
-            if [ ! -d "$PROJECT_DIR" ]; then
-                echo "Ошибка: 111 $PROJECT_DIR 111 не существует"
-                exit 1
-            fi
-            
-            # Создать папку бэкапа
-            BACKUP_DIR="$PROJECT_DIR/backup_$(date +'%Y%m%d_%H%M%S')"
-            mkdir -p "$BACKUP_DIR"
-            
-            # Копирование содержимого проекта, исключая старые бэкапы
-            rsync -a --exclude 'backup_*' "$PROJECT_DIR/" "$BACKUP_DIR/"
-            
-            echo "Бэкап завершён: $BACKUP_DIR"
-            
-            cd "$PROJECT_DIR"
-
-            pwd
-            ls
-
-            # Git pull
-            git pull
-
-            echo "pulled"
-
-            # Активируем виртуальное окружение
-            source $VENV_ACTIVATE
-
-            # Устанавливаем зависимости
-            pip install -r requirements.txt
-
-            # Миграции и статика
-            python manage.py migrate --noinput
-            python manage.py collectstatic --noinput
-
-            # Создаем/обновляем passenger_wsgi.py
+          ssh -i key -o StrictHostKeyChecking=no $USER@$HOST "
+            cd \"$PROJECT_DIR\" &&
+            git pull &&
+            $VENV_ACTIVATE &&
+            pip install -r requirements.txt &&
+            python manage.py makemigrations --noinput &&
+            python manage.py migrate --noinput &&
+            python manage.py makemigrations main --noinput &&
+            python manage.py migrate main --noinput &&
+            python collectstatic --noinput &&
             touch passenger_wsgi.py
-
-            # Проверка первых 20 страниц из sitemap.xml
-            SITEMAP_URL="https://rimmirk.dev/sitemap.xml"
-            TMP_SITEMAP="/tmp/sitemap.xml"
-            curl -s -o $TMP_SITEMAP $SITEMAP_URL
-            URLS=$(xmllint --xpath "//url/loc/text()" $TMP_SITEMAP | head -n 20)
-
-            ERROR_404=0
-            ERROR_500=0
-
-            for url in $URLS; do
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-              if [ "$STATUS" = "404" ]; then
-                echo "Page $url returned 404"
-                ERROR_404=1
-              elif [ "$STATUS" = "500" ]; then
-                echo "Page $url returned 500, rolling back"
-                ERROR_500=1
-                break
-              fi
-            done
-
-            if [ "$ERROR_500" = "1" ]; then
-              # Откат к бэкапу
-              rsync -a --delete "$BACKUP_DIR/" .
-              exit 1
-            fi
-
-            if [ "$ERROR_404" = "1" ]; then
-              echo "::warning file=deploy::Some pages returned 404"
-            fi
-          EOF
+          "
