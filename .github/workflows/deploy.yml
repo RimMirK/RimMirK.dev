@@ -32,10 +32,12 @@ jobs:
             # Создать бэкап текущего состояния сайта (только файлы)
             BACKUP_DIR="backup_$(date +'%Y%m%d_%H%M%S')"
             mkdir -p "$BACKUP_DIR"
-            rsync -a --exclude 'backup_*' . "$BACKUP_DIR/"
+            rsync -a --exclude 'backup_*' "$PROJECT_DIR" "$BACKUP_DIR/"
 
             # Git pull
             git pull
+
+            echo "pulled"
 
             # Активируем виртуальное окружение
             source $VENV_ACTIVATE
