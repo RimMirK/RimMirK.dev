@@ -33,7 +33,7 @@ jobs:
             
             # Проверка существования папки
             if [ ! -d "$PROJECT_DIR" ]; then
-                echo "Ошибка: $PROJECT_DIR не существует"
+                echo "Ошибка: `$PROJECT_DIR` не существует"
                 exit 1
             fi
             
