@@ -1,0 +1,31 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare SSH key
+        env:
+          KEY: ${{ secrets.CPANEL_SSH_KEY }}
+        run: |
+          echo "$KEY" > key
+          chmod 600 key
+
+      - name: Deploy to server
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PROJECT_DIR: ${{ secrets.PROJECT_DIR }}
+          VENV_ACTIVATE: ${{ secrets.VENV_ACTIVATE }}
+        run: |
+          ssh -i key -o StrictHostKeyChecking=no $USER@$HOST "
+            cd \"$PROJECT_DIR\" &&
+            git pull &&
+            $VENV_ACTIVATE &&
+            pip install -r requirements.txt &&
+            touch passenger_wsgi.py
+          "
