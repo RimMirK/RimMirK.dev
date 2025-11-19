@@ -16,7 +16,7 @@ jobs:
           chmod 600 key
 
       - name: Deploy to server
-        env:
+        env: 
           HOST: ${{ secrets.CPANEL_HOST }}
           USER: ${{ secrets.CPANEL_USER }}
           PROJECT_DIR: ${{ secrets.PROJECT_DIR }}
