@@ -16,52 +16,66 @@ jobs:
           chmod 600 key
 
       - name: Deploy to server
-        env:
+        env: 
           HOST: ${{ secrets.CPANEL_HOST }}
           USER: ${{ secrets.CPANEL_USER }}
           PROJECT_DIR: ${{ secrets.PROJECT_DIR }}
           VENV_ACTIVATE: ${{ secrets.VENV_ACTIVATE }}
-          BACKUP_DIR: ${{ secrets.BACKUP_DIR }}
         run: |
-          ssh -i key -o StrictHostKeyChecking=no $USER@$HOST "
+          ssh -i key -o StrictHostKeyChecking=no $USER@$HOST bash <<'EOF'
             set -e
 
-            # Бэкап проекта и базы
-            TIMESTAMP=\$(date +'%Y%m%d%H%M%S')
-            mkdir -p \"$BACKUP_DIR\"
-            tar czf \"$BACKUP_DIR/project_\$TIMESTAMP.tar.gz\" -C \"$PROJECT_DIR\" .
-            python3 - <<'EOS'
-import subprocess, os
-DB_BACKUP = os.path.join('$BACKUP_DIR', f'db_{TIMESTAMP}.sql')
-subprocess.run(['pg_dump', '-U', 'your_db_user', '-h', 'localhost', 'your_db_name', '-f', DB_BACKUP], check=True)
-EOS
+            cd "$PROJECT_DIR"
 
-            # Деплой
-            cd \"$PROJECT_DIR\"
+            # Создать бэкап текущего состояния сайта (только файлы)
+            BACKUP_DIR="backup_$(date +'%Y%m%d_%H%M%S')"
+            mkdir -p "$BACKUP_DIR"
+            rsync -a --exclude 'backup_*' . "$BACKUP_DIR/"
+
+            # Git pull
             git pull
-            $VENV_ACTIVATE
+
+            # Активируем виртуальное окружение
+            source $VENV_ACTIVATE
+
+            # Устанавливаем зависимости
             pip install -r requirements.txt
+
+            # Миграции и статика
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
+
+            # Создаем/обновляем passenger_wsgi.py
             touch passenger_wsgi.py
 
-            # Проверка первых 20 страниц sitemap
-            PAGES=\$(grep -oP '(?<=<loc>).*?(?=</loc>)' sitemap.xml | head -n20)
-            ERROR=0
-            for url in \$PAGES; do
-              HTTP_CODE=\$(curl -s -o /dev/null -w '%{http_code}' \$url)
-              if [ \"\$HTTP_CODE\" = \"404\" ]; then
-                echo \"404 on \$url\" >> \$BACKUP_DIR/deploy_404.log
-              elif [ \"\$HTTP_CODE\" = \"500\" ]; then
-                echo \"500 on \$url, rolling back\"
-                ERROR=1
+            # Проверка первых 20 страниц из sitemap.xml
+            SITEMAP_URL="https://rimmirk.dev/sitemap.xml"
+            TMP_SITEMAP="/tmp/sitemap.xml"
+            curl -s -o $TMP_SITEMAP $SITEMAP_URL
+            URLS=$(xmllint --xpath "//url/loc/text()" $TMP_SITEMAP | head -n 20)
+
+            ERROR_404=0
+            ERROR_500=0
+
+            for url in $URLS; do
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+              if [ "$STATUS" = "404" ]; then
+                echo "Page $url returned 404"
+                ERROR_404=1
+              elif [ "$STATUS" = "500" ]; then
+                echo "Page $url returned 500, rolling back"
+                ERROR_500=1
+                break
               fi
             done
 
-            if [ \$ERROR -eq 1 ]; then
-              echo 'Rolling back project...'
-              tar xzf \"$BACKUP_DIR/project_\$TIMESTAMP.tar.gz\" -C \"$PROJECT_DIR\" --strip-components=0
-              echo 'Rollback done'
+            if [ "$ERROR_500" = "1" ]; then
+              # Откат к бэкапу
+              rsync -a --delete "$BACKUP_DIR/" .
               exit 1
             fi
-          "
+
+            if [ "$ERROR_404" = "1" ]; then
+              echo "::warning file=deploy::Some pages returned 404"
+            fi
+          EOF
