@@ -25,9 +25,11 @@ jobs:
           ssh -i key -o StrictHostKeyChecking=no $USER@$HOST bash <<'EOF'
             set -e
 
-            cd "$PROJECT_DIR"
 
-          
+            
+            pwd
+            ls
+
             
             # Проверка существования папки
             if [ ! -d "$PROJECT_DIR" ]; then
@@ -43,6 +45,8 @@ jobs:
             rsync -a --exclude 'backup_*' "$PROJECT_DIR/" "$BACKUP_DIR/"
             
             echo "Бэкап завершён: $BACKUP_DIR"
+            
+            cd "$PROJECT_DIR"
 
             pwd
             ls
