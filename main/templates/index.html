@@ -47,6 +47,7 @@
                 </div>
             </article>
         {% endfor %}
+        <a href='{% url "projects" %}' class='btn'>All projects</a>
     </div>
 </section>
 
@@ -71,6 +72,8 @@
                 </div>
             </article>
         {% endfor %}
+        <a href='{% url "articles" %}' class='btn'>All articles</a>
     </div>
 </section>
+
 {% endblock %}
