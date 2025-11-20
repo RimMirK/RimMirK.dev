@@ -209,6 +209,12 @@ MARK: SITE PARTS
     border-radius: 50%;
 }
 
+@media (max-width: 1060px) {
+    #logo-cat {
+        margin-left: 50px;
+    }
+}
+
 .main-nav a:hover {
     color: var(--text);
     transition: all .25s;
