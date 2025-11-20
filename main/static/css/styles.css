@@ -643,6 +643,10 @@ iframe {
 MARK: BLOCKS
 */
 
+.all-btn {
+    margin-top: 10px;
+}
+
 /* Project card */
 .project-card {
     width: 100%;
@@ -819,4 +823,5 @@ MARK: BLOCKS
 .article-description img {
     border-radius: 8px;
 }
+
 
