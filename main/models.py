@@ -79,7 +79,7 @@ class ProjectLink(models.Model):
             ('_top', '_top'),
             (None, 'framename')
         ],
-        default="_self",
+        default="_blank",
         blank=False,
     )
     style = models.CharField(
@@ -87,7 +87,7 @@ class ProjectLink(models.Model):
             ('link', 'Link'),
             ('btn', 'Button'),
             ('btn-ghost', 'Ghost Button')
-        ], default='link'
+        ], default='btn'
     )
     extra_attrs = models.CharField(blank=True)
     
@@ -136,4 +136,5 @@ class ArticleView(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     ip = models.GenericIPAddressField()
     created_at = models.DateTimeField(auto_now_add=True, editable=True)
+
 
