@@ -57,7 +57,7 @@ class Notify404Middleware:
         # 5) META
         lines.append("\nMETA:")
         for k, v in request.META.items():
-            lines.append(f"  {k}: {v}")
+            lines.append(f"  {k}: {v!s}")
 
         # 6) Последние строки лога
         lines.append("\nLOG TAIL:")
@@ -109,4 +109,5 @@ class Notify404Middleware:
 
         except Exception as e:
             return f"Error reading log file: {e}"
+
 
