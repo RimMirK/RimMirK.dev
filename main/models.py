@@ -45,7 +45,7 @@ class Project(models.Model):
     description = RichTextField()
     pinned = models.BooleanField()
     hidden = models.BooleanField()
-    icon = models.ImageField(blank=True, upload_to='projects_logos')
+    icon = models.ImageField(upload_to='projects_logos')
     created_at = models.DateTimeField(auto_now_add=True)
     lastmod = models.DateTimeField(auto_now=True)
     comment = models.TextField(help_text="This text is NOT shown for users", blank=True)
@@ -136,5 +136,6 @@ class ArticleView(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     ip = models.GenericIPAddressField()
     created_at = models.DateTimeField(auto_now_add=True, editable=True)
+
 
 
