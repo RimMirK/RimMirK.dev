@@ -3,7 +3,7 @@ import traceback
 from django.conf import settings
 from django.core.mail import mail_admins
 
-LOG_TAIL_LINES = os.environ["LOG_TAIL_LINES"]
+LOG_TAIL_LINES = int(os.environ["LOG_TAIL_LINES"])
 LOG_FILE_PATH  = os.environ["LOG_FILE_PATH"]
 
 class Notify404Middleware:
@@ -109,3 +109,4 @@ class Notify404Middleware:
 
         except Exception as e:
             return f"Error reading log file: {e}"
+
