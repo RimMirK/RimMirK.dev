@@ -11,6 +11,13 @@ sitemaps = {
     "articles": ArticleSitemap,
 }
 
+def robots_txt(request):
+    content = (
+        "User-agent: *\n"
+        "Disallow: /admin/\n"
+    )
+    return HttpResponse(content, content_type="text/plain")
+
 urlpatterns = [
     path("", views.index, name="index"),
     path("about/", views.about, name="about"),
@@ -22,8 +29,8 @@ urlpatterns = [
     path("donate/", views.donate, name='donate'),
     path("contacts/", views.contacts, name="contacts"),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
-    # path("error/", views.handler404, {'exception': 'None'})
-    path('favicon.ico', RedirectView.as_view(url=static('images/cat-rounded.png'))),
+    path("favicon.ico", RedirectView.as_view(url=static('images/cat-rounded.png'))),
+    path("robors.txt", robots_txt)
 ]
 
 handler400 = "app.views.handler400"
