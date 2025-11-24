@@ -30,10 +30,11 @@ urlpatterns = [
     path("contacts/", views.contacts, name="contacts"),
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"),
     path("favicon.ico", RedirectView.as_view(url=static('images/cat-rounded.png'))),
-    path("robors.txt", robots_txt)
+    path("robots.txt", robots_txt)
 ]
 
 handler400 = "app.views.handler400"
 handler403 = "app.views.handler403"
 handler404 = "app.views.handler404"
 handler500 = "app.views.handler500"
+
