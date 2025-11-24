@@ -21,6 +21,7 @@ jobs:
           USER: ${{ secrets.CPANEL_USER }}
           PROJECT_DIR: ${{ secrets.PROJECT_DIR }}
           VENV_ACTIVATE: ${{ secrets.VENV_ACTIVATE }}
+          TOUCH_FILE: ${{ secrets.TOUCH_FILE }}
 
         run: |
           ssh -i key -o StrictHostKeyChecking=no $USER@$HOST "
@@ -33,5 +34,5 @@ jobs:
             python manage.py makemigrations main --noinput &&
             python manage.py migrate main --noinput &&
             python manage.py collectstatic --noinput &&
-            touch passenger_wsgi.py
+            touch $TOUCH_FILE
           "
