@@ -4,6 +4,7 @@ from django.contrib.sitemaps.views import sitemap
 from .sitemaps import ProjectSitemap, ArticleSitemap, StaticViewSitemap
 from django.templatetags.static import static
 from django.views.generic import RedirectView
+from django.http import HttpResponse
 
 sitemaps = {
     "static": StaticViewSitemap,
@@ -37,4 +38,5 @@ handler400 = "app.views.handler400"
 handler403 = "app.views.handler403"
 handler404 = "app.views.handler404"
 handler500 = "app.views.handler500"
+
 
