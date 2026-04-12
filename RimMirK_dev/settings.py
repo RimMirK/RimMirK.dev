@@ -31,6 +31,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["rimmirk.dev"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://rimmirk.dev",
+]
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
