@@ -63,7 +63,7 @@ class Project(models.Model):
         return f"Project: {self.title}"
     
     def get_absolute_url(self):
-        return f'/project/{self.slug}'
+        return f'/project/{self.slug}/'
 
 
 
@@ -129,7 +129,7 @@ class Article(models.Model):
         return self.title
     
     def get_absolute_url(self):
-        return f'/article/{self.slug}'
+        return f'/article/{self.slug}/'
     
     
 class ArticleView(models.Model):
